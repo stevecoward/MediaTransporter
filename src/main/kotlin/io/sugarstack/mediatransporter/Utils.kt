@@ -6,6 +6,9 @@ import java.io.IOException
 import java.io.InputStream
 import java.nio.charset.Charset
 import java.nio.file.*
+import java.util.*
+import kotlin.collections.ArrayList
+import kotlin.collections.HashMap
 import kotlin.text.Charsets.UTF_8
 
 
@@ -27,7 +30,7 @@ object Utils {
         return execLocal(command, hashMapOf())
     }
 
-    fun execLocal(command: String, env: HashMap<String, String>): String {
+    private fun execLocal(command: String, env: HashMap<String, String>): String {
         try {
             val commands = ArrayList<String>()
             commands.add("sh")
@@ -36,7 +39,6 @@ object Utils {
 
             val pb = ProcessBuilder(commands)
             pb.environment().putAll(env)
-//            println("Running: ${pb.command()} \n with env $env")
 
             val process = pb.start()
             val result = collectOutput(process.inputStream)
@@ -45,8 +47,6 @@ object Utils {
             if (process.waitFor() != 0) {
                 println("Failed to execute command ${pb.command()}.\nstderr: $errors\nstdout: $result")
                 throw RuntimeException(errors)
-            } else {
-//                println("stdout: $result")
             }
             return result
         } catch (e: IOException) {
@@ -56,8 +56,8 @@ object Utils {
         }
     }
 
-    fun findMediaFiles(completedDownloadsPath: Path): Boolean {
-        val globFilesPattern = "*.{mkv,avi,mp4,mov}"
+    fun findMediaFiles(completedDownloadsPath: Path): List<Path> {
+        val globFilesPattern = "*.{mkv,avi,mp4,mov,rar}"
         val matcher = FileSystems
             .getDefault()
             .getPathMatcher("glob:$globFilesPattern")
@@ -65,8 +65,6 @@ object Utils {
         val listFiles = ListFiles(matcher)
         Files.walkFileTree(completedDownloadsPath, listFiles)
 
-        val foundFiles = listFiles.getFoundFiles()
-
-        return true
+        return listFiles.getFoundFiles()
     }
 }
