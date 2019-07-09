@@ -1,12 +1,12 @@
 package io.sugarstack.mediatransporter
 
 import org.apache.commons.io.IOUtils
+import org.apache.commons.lang3.StringUtils
 import java.io.BufferedReader
 import java.io.IOException
 import java.io.InputStream
 import java.nio.charset.Charset
 import java.nio.file.*
-import java.util.*
 import kotlin.collections.ArrayList
 import kotlin.collections.HashMap
 import kotlin.text.Charsets.UTF_8
@@ -66,5 +66,23 @@ object Utils {
         Files.walkFileTree(completedDownloadsPath, listFiles)
 
         return listFiles.getFoundFiles()
+    }
+
+    fun toTitleCase(title: String): String {
+        val finalTitleWords: MutableList<String> = ArrayList()
+        val words = title.split(" ")
+        val shortWords = arrayListOf<String>(
+            "a", "an", "the", "and", "but", "or", "for", "nor", "on", "at", "to", "from", "by"
+        )
+
+        for (word in words) {
+            if (word !in shortWords) {
+                finalTitleWords.add(StringUtils.capitalize(word))
+            } else {
+                finalTitleWords.add(word)
+            }
+        }
+
+        return finalTitleWords.joinToString(" ")
     }
 }

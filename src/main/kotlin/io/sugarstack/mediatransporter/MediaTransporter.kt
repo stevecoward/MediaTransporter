@@ -7,8 +7,8 @@ class MediaTransporter {
     companion object {
         @JvmStatic fun main(args: Array<String>) {
             val storage = Storage()
-            val shows: MutableList<Map<String, String>> = ArrayList()
-            val movies: MutableList<Map<String, String>> = ArrayList()
+            val shows: MutableList<ShowData> = ArrayList()
+            val movies: MutableList<MovieData> = ArrayList()
 
             try {
                 if(storage.isCapacityReached()) {
@@ -30,24 +30,29 @@ class MediaTransporter {
                 val moviesMatches = Config.regexMoviePattern.matcher(file.fileName.toString())
 
                 while (showsMatches.find()) {
-                    val parsedShowDetails = mapOf(
-                        "title" to showsMatches.group("title"),
-                        "season" to showsMatches.group("season"),
-                        "episode" to showsMatches.group("episode"),
-                        "path" to file.toAbsolutePath().toString()
+                    val parsedShowDetails = ShowData(
+                        showsMatches.group("title"),
+                        showsMatches.group("season"),
+                        showsMatches.group("episode"),
+                        file.toAbsolutePath()
                     )
                     shows.add(parsedShowDetails)
                 }
 
                 while (moviesMatches.find()) {
-                    val parsedMovieDetails = mapOf(
-                        "title" to moviesMatches.group("title"),
-                        "year" to moviesMatches.group("year"),
-                        "resolution" to moviesMatches.group("resolution"),
-                        "path" to file.toAbsolutePath().toString()
+                    val parsedMovieDetails = MovieData(
+                        moviesMatches.group("title"),
+                        moviesMatches.group("year"),
+                        moviesMatches.group("resolution"),
+                        file.toAbsolutePath()
                     )
                     movies.add(parsedMovieDetails)
                 }
+            }
+
+            for (showData in shows) {
+                val show = Show(showData)
+                show.process()
             }
         }
     }
