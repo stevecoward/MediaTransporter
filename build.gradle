@@ -17,17 +17,23 @@ dependencies {
     testCompile "org.mockito:mockito-core:2.+"
     compile "org.apache.commons:commons-lang3:3.7"
     compile "commons-io:commons-io:2.6"
+    compile group: "com.github.junrar", name: "junrar", version: "0.7"
+
 }
 
 compileKotlin {
+    //noinspection GrUnresolvedAccess
     kotlinOptions.jvmTarget = "1.8"
 }
 compileTestKotlin {
+    //noinspection GrUnresolvedAccess
     kotlinOptions.jvmTarget = "1.8"
 }
 
 tasks.getByName("shadowJar") {
+    //noinspection GrUnresolvedAccess
     manifest {
+        //noinspection GrUnresolvedAccess
         attributes 'Main-Class': 'io.sugarstack.mediatransporter.MediaTransporter'
     }
 }

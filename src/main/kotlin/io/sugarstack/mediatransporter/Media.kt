@@ -2,8 +2,11 @@ package io.sugarstack.mediatransporter
 
 import java.io.File
 import java.nio.file.Files
+import java.nio.file.Files.isRegularFile
 import java.nio.file.Path
 import java.nio.file.Paths
+import java.util.*
+
 
 open class Media {
     constructor(mediaData: ShowData) {
@@ -14,9 +17,14 @@ open class Media {
         prepareDestination(mediaData)
     }
 
-    fun process(): Boolean {
+    fun getExistingMedia(mediaShare: Path, data: ShowData): Optional<Path>? {
 
-        return true
+        return Files.walk(data.path).use { path ->
+            path
+                .filter { isRegularFile(it) }
+                .findAny()
+            //                .collect(Collectors.toList())
+        }
     }
 
     private fun prepareDestination(show: ShowData): Boolean {

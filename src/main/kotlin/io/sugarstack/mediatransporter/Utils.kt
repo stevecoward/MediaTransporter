@@ -6,9 +6,9 @@ import java.io.BufferedReader
 import java.io.IOException
 import java.io.InputStream
 import java.nio.charset.Charset
-import java.nio.file.*
-import kotlin.collections.ArrayList
-import kotlin.collections.HashMap
+import java.nio.file.FileSystems
+import java.nio.file.Files
+import java.nio.file.Path
 import kotlin.text.Charsets.UTF_8
 
 
@@ -56,11 +56,17 @@ object Utils {
         }
     }
 
-    fun findMediaFiles(completedDownloadsPath: Path): List<Path> {
-        val globFilesPattern = "*.{mkv,avi,mp4,mov,rar}"
+    fun findMediaFiles(
+        completedDownloadsPath: Path,
+        includeArchiveExtension: Boolean = false,
+        fileNamePartialRegex: String = ".+"
+    ): List<Path> {
+        var globFilesPattern = "^$fileNamePartialRegex\\.(?:(?:mkv)|(?:avi)|(?:mp4)|(?:mov))\$"
+        if (includeArchiveExtension) globFilesPattern =
+            "$fileNamePartialRegex\\.(?:(?:mkv)|(?:avi)|(?:mp4)|(?:mov)|(?:rar))\$"
         val matcher = FileSystems
             .getDefault()
-            .getPathMatcher("glob:$globFilesPattern")
+            .getPathMatcher("regex:$globFilesPattern")
 
         val listFiles = ListFiles(matcher)
         Files.walkFileTree(completedDownloadsPath, listFiles)
@@ -71,7 +77,7 @@ object Utils {
     fun toTitleCase(title: String): String {
         val finalTitleWords: MutableList<String> = ArrayList()
         val words = title.split(" ")
-        val shortWords = arrayListOf<String>(
+        val shortWords = arrayListOf(
             "a", "an", "the", "and", "but", "or", "for", "nor", "on", "at", "to", "from", "by"
         )
 

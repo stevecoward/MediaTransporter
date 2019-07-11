@@ -1,7 +1,5 @@
 package io.sugarstack.mediatransporter
 
-import java.lang.Exception
-
 class MediaTransporter {
 
     companion object {
@@ -22,7 +20,7 @@ class MediaTransporter {
                 return
             }
 
-            val foundFiles = Utils.findMediaFiles(storage.completedDownloadsPath)
+            val foundFiles = Utils.findMediaFiles(storage.completedDownloadsPath, true)
             for (file in foundFiles) {
                 println("Found: ${file.toAbsolutePath()}")
 
@@ -51,8 +49,30 @@ class MediaTransporter {
             }
 
             for (showData in shows) {
-                val show = Show(showData)
-                show.process()
+                if (showData.path.toString().contains("S15E01")) {
+                    val show = Show(showData)
+                    if (!show.showDirectoryExists()) {
+//                        TODO
+                    }
+
+                    if (!show.seasonDirectoryExists()) {
+//                        TODO
+                    }
+
+                    if (Utils.findMediaFiles(
+                            show.showSeasonPath,
+                            false,
+                            ".+[sS]${show.data.season}[eE]${show.data.episode}.+"
+                        ).count() == 0
+                    ) {
+
+//                        TODO: File not found in share, extract from source into destination.
+                    } else {
+//                        TODO: File was found in share.
+                    }
+
+                    val x = ""
+                }
             }
         }
     }
