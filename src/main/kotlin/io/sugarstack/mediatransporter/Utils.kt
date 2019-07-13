@@ -1,5 +1,6 @@
 package io.sugarstack.mediatransporter
 
+import mu.KotlinLogging
 import org.apache.commons.io.IOUtils
 import org.apache.commons.lang3.StringUtils
 import java.io.BufferedReader
@@ -11,12 +12,13 @@ import java.nio.file.Files
 import java.nio.file.Path
 import kotlin.text.Charsets.UTF_8
 
-
+private val logger = KotlinLogging.logger {}
 object Utils {
+
     private fun collectOutput(inputStream: InputStream): String {
         val out = StringBuilder()
         val buf: BufferedReader = inputStream.bufferedReader(UTF_8)
-        var line: String? = buf.readLine()
+        var line = buf.readLine()
         do {
             if (line != null) {
                 out.append(line).append("\n")
@@ -45,7 +47,7 @@ object Utils {
             val errors = IOUtils.toString(process.errorStream, Charset.forName("utf-8"))
 
             if (process.waitFor() != 0) {
-                println("Failed to execute command ${pb.command()}.\nstderr: $errors\nstdout: $result")
+                logger.error { "Failed to execute command ${pb.command()}.\nstderr: $errors\nstdout: $result" }
                 throw RuntimeException(errors)
             }
             return result
@@ -57,19 +59,19 @@ object Utils {
     }
 
     fun findMediaFiles(
-        completedDownloadsPath: Path,
+        mediaFilesPath: Path,
         includeArchiveExtension: Boolean = false,
-        fileNamePartialRegex: String = ".+"
+        regexFileNamePartial: String = ".+"
     ): List<Path> {
-        var globFilesPattern = "^$fileNamePartialRegex\\.(?:(?:mkv)|(?:avi)|(?:mp4)|(?:mov))\$"
+        var globFilesPattern = "^$regexFileNamePartial\\.(?:(?:mkv)|(?:avi)|(?:mp4)|(?:mov))\$"
         if (includeArchiveExtension) globFilesPattern =
-            "$fileNamePartialRegex\\.(?:(?:mkv)|(?:avi)|(?:mp4)|(?:mov)|(?:rar))\$"
+            "$regexFileNamePartial\\.(?:(?:mkv)|(?:avi)|(?:mp4)|(?:mov)|(?:rar))\$"
         val matcher = FileSystems
             .getDefault()
             .getPathMatcher("regex:$globFilesPattern")
 
         val listFiles = ListFiles(matcher)
-        Files.walkFileTree(completedDownloadsPath, listFiles)
+        Files.walkFileTree(mediaFilesPath, listFiles)
 
         return listFiles.getFoundFiles()
     }

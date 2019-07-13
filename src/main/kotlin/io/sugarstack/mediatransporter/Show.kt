@@ -1,21 +1,38 @@
 package io.sugarstack.mediatransporter
 
-import java.nio.file.Files
-import java.nio.file.Path
-import java.nio.file.Paths
+import mu.KotlinLogging
 
-class Show(val data: ShowData) : Media(data) {
+private val logger = KotlinLogging.logger {}
 
-    private lateinit var showRootPath: Path
-    lateinit var showSeasonPath: Path
+class Show(private val data: ShowData) : Media(data) {
+    private var showSeasonPath = data.sharePath
 
-    fun showDirectoryExists(): Boolean {
-        showRootPath = Paths.get(Config.tvRootPath.format(Config.mediaShareMount, data.title))
-        return Files.isDirectory(showRootPath)
+    override fun toString(): String {
+        return "${data.title}: Season ${data.season} Episode ${data.episode}"
     }
 
-    fun seasonDirectoryExists(): Boolean {
-        showSeasonPath = Paths.get(Config.tvSeasonPath.format(Config.mediaShareMount, data.title, data.season))
-        return Files.isDirectory(showSeasonPath)
+    fun process() {
+        if (filesExist()) {
+            logger.info { "Found $this" }
+        } else {
+            val showFile = data.path.toFile()
+
+            logger.info { "Copying $this to destination" }
+
+            if (!data.path.toString().endsWith("rar")) {
+                showFile.copyTo(data.sharePath.resolve(data.path.fileName).toFile())
+                return
+            }
+
+            extract(showFile, showSeasonPath)
+        }
+    }
+
+    private fun filesExist(): Boolean {
+        return Utils.findMediaFiles(
+            showSeasonPath,
+            false,
+            ".+[sS]${data.season}[eE]${data.episode}.+"
+        ).count() > 0
     }
 }

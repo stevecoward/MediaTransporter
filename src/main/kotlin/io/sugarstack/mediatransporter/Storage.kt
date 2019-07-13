@@ -1,12 +1,17 @@
 package io.sugarstack.mediatransporter
 
+import mu.KotlinLogging
+import java.io.File
+import java.math.RoundingMode
 import java.nio.file.Files
 import java.nio.file.Path
 import java.nio.file.Paths
+import kotlin.system.exitProcess
 
+private val logger = KotlinLogging.logger {}
 class Storage {
 
-    lateinit var mediaShare: Path
+    private lateinit var mediaShare: Path
     lateinit var completedDownloadsPath: Path
 
     init {
@@ -27,18 +32,30 @@ class Storage {
 
     }
 
-    private fun getVolumeCapacity(): List<String> {
-        val capacityCommandParameters = "df -H $mediaShare | tail -n1 | awk '{ print \$5 \" \" \$4 }'"
-        val capacityCommandOutput = Utils.execLocal(capacityCommandParameters)
+    private fun isCapacityReached(): Boolean {
+        val volume = File(mediaShare.toString())
+        val totalBytes = volume.totalSpace
+        val totalBytesFree = volume.freeSpace
+        val capacity: Int = (((totalBytes - totalBytesFree).toDouble() / totalBytes) * 100)
+            .toBigDecimal()
+            .setScale(1, RoundingMode.UP)
+            .toInt()
 
-        return capacityCommandOutput.split(" ")
+        if (capacity >= Config.percentageSafeCapacity) return true
+        return false
     }
 
-    fun isCapacityReached(): Boolean {
-        val capacityDetails = getVolumeCapacity()
-        val capacityPercentage: Int = capacityDetails[0].replace("%", "").toInt()
-
-        if(capacityPercentage >= Config.percentageSafeCapacity) return true
-        return false
+    fun determineCapacity() {
+        try {
+            if (isCapacityReached()) {
+                logger.warn { "Capacity for storage volume: $mediaShare reached. Exiting." }
+                exitProcess(-1)
+            } else {
+                logger.info { "Capacity looks good, continuing" }
+            }
+        } catch (e: Exception) {
+            logger.error { "Could not locate the share defined in config!" }
+            exitProcess(-1)
+        }
     }
 }

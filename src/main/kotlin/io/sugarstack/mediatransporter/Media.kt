@@ -1,11 +1,11 @@
 package io.sugarstack.mediatransporter
 
+import com.github.junrar.Archive
 import java.io.File
+import java.io.FileOutputStream
 import java.nio.file.Files
-import java.nio.file.Files.isRegularFile
 import java.nio.file.Path
 import java.nio.file.Paths
-import java.util.*
 
 
 open class Media {
@@ -17,29 +17,37 @@ open class Media {
         prepareDestination(mediaData)
     }
 
-    fun getExistingMedia(mediaShare: Path, data: ShowData): Optional<Path>? {
+    fun extract(file: File, path: Path) {
+        val archiveFile = Archive(file)
+        val archiveFileHeaders = archiveFile.fileHeaders
 
-        return Files.walk(data.path).use { path ->
-            path
-                .filter { isRegularFile(it) }
-                .findAny()
-            //                .collect(Collectors.toList())
+        for (archiveFileHeader in archiveFileHeaders) {
+            val fileEntry = File(Paths.get(path.toString(), archiveFileHeader.fileNameString.trim()).toString())
+            val outputStream = FileOutputStream(fileEntry)
+            archiveFile.extractFile(archiveFileHeader, outputStream)
+            outputStream.close()
         }
     }
 
     private fun prepareDestination(show: ShowData): Boolean {
-        val rootTvPath = Paths.get(String.format(Config.tvRootPath, Config.mediaShareMount, show.title))
-        val seasonPath = Paths.get(String.format(Config.tvSeasonPath, Config.mediaShareMount, show.title, show.season))
+        show.sharePath = Paths.get(String.format(Config.tvSeasonPath, Config.mediaShareMount, show.title, show.season))
+        var success = false
 
-        if (!Files.isDirectory(seasonPath)) {
-            val success = File(seasonPath.toString()).mkdirs()
+        if (!Files.isDirectory(show.sharePath)) {
+            success = File(show.sharePath.toString()).mkdirs()
         }
 
-        return true
+        return success
     }
 
     private fun prepareDestination(movie: MovieData): Boolean {
+        movie.sharePath = Paths.get(String.format(Config.movieRootPath, Config.mediaShareMount, movie.title))
+        var success = false
 
-        return true
+        if (!Files.isDirectory(movie.sharePath)) {
+            success = movie.sharePath.toFile().mkdirs()
+        }
+
+        return success
     }
 }
