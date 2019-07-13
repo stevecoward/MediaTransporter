@@ -1,5 +1,7 @@
 package io.sugarstack.mediatransporter
 
+import java.util.regex.Pattern
+
 class MediaTransporter {
     companion object {
         @JvmStatic fun main(args: Array<String>) {
@@ -12,8 +14,11 @@ class MediaTransporter {
             val foundFiles = Utils.findMediaFiles(storage.completedDownloadsPath, true)
             for (file in foundFiles) {
 
-                val showsMatches = Config.regexTvPattern.matcher(file.fileName.toString())
-                val moviesMatches = Config.regexMoviePattern.matcher(file.fileName.toString())
+                val showPattern = Pattern.compile(Config.properties["regexTvPattern"] as String)
+                val showsMatches = showPattern.matcher(file.fileName.toString())
+
+                val moviePattern = Pattern.compile(Config.properties["regexMoviePattern"] as String)
+                val moviesMatches = moviePattern.matcher(file.fileName.toString())
 
                 while (showsMatches.find()) {
                     val parsedShowDetails = ShowData(

@@ -16,7 +16,7 @@ class ListFiles(private val pathMatcher: PathMatcher) : SimpleFileVisitor<Path>(
 
     override fun preVisitDirectory(dir: Path, attrs: BasicFileAttributes?): FileVisitResult {
         val directory = dir.toString()
-        if ((directory != Config.completedDownloadPath)) {
+        if ((directory != Config.properties["completedDownloadPath"] as String)) {
             findFile(dir, pathMatcher)
         }
 

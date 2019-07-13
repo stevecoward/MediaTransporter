@@ -30,7 +30,14 @@ open class Media {
     }
 
     private fun prepareDestination(show: ShowData): Boolean {
-        show.sharePath = Paths.get(String.format(Config.tvSeasonPath, Config.mediaShareMount, show.title, show.season))
+        show.sharePath = Paths.get(
+            String.format(
+                Config.properties["tvSeasonPath"] as String,
+                Config.properties["mediaShareMount"] as String,
+                show.title,
+                show.season
+            )
+        )
         var success = false
 
         if (!Files.isDirectory(show.sharePath)) {
@@ -41,7 +48,13 @@ open class Media {
     }
 
     private fun prepareDestination(movie: MovieData): Boolean {
-        movie.sharePath = Paths.get(String.format(Config.movieRootPath, Config.mediaShareMount, movie.title))
+        movie.sharePath = Paths.get(
+            String.format(
+                Config.properties["movieRootPath"] as String,
+                Config.properties["mediaShareMount"] as String,
+                movie.title
+            )
+        )
         var success = false
 
         if (!Files.isDirectory(movie.sharePath)) {

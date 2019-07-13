@@ -15,7 +15,7 @@ class Storage {
     lateinit var completedDownloadsPath: Path
 
     init {
-        val mediaShares = Config.mediaShareMount
+        val mediaShares = Config.properties["mediaShareMount"] as String
         val mediaSharesList: List<String> = mediaShares.split(",")
         for(share in mediaSharesList) {
             val sharePath = Paths.get(share)
@@ -25,7 +25,7 @@ class Storage {
             }
         }
 
-        val downloadsPath = Paths.get(Config.completedDownloadPath)
+        val downloadsPath = Paths.get(Config.properties["completedDownloadPath"] as String)
         if(Files.exists(downloadsPath)) {
             completedDownloadsPath = downloadsPath
         }
@@ -41,7 +41,7 @@ class Storage {
             .setScale(1, RoundingMode.UP)
             .toInt()
 
-        if (capacity >= Config.percentageSafeCapacity) return true
+        if (capacity >= Config.properties["percentageSafeCapacity"] as Int) return true
         return false
     }
 
