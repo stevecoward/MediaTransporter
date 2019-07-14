@@ -4,6 +4,11 @@ import com.github.ajalt.clikt.core.CliktCommand
 import com.github.ajalt.clikt.parameters.options.option
 import com.github.ajalt.clikt.parameters.options.required
 import com.github.ajalt.clikt.parameters.types.file
+import io.sugarstack.mediatransporter.filesystem.Storage
+import io.sugarstack.mediatransporter.media.Movie
+import io.sugarstack.mediatransporter.media.Show
+import io.sugarstack.mediatransporter.media.data.MovieData
+import io.sugarstack.mediatransporter.media.data.ShowData
 import java.io.File
 import java.util.regex.Pattern
 

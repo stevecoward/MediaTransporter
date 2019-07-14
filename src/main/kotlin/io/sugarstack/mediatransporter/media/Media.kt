@@ -1,6 +1,9 @@
-package io.sugarstack.mediatransporter
+package io.sugarstack.mediatransporter.media
 
 import com.github.junrar.Archive
+import io.sugarstack.mediatransporter.Config
+import io.sugarstack.mediatransporter.media.data.MovieData
+import io.sugarstack.mediatransporter.media.data.ShowData
 import java.io.File
 import java.io.FileOutputStream
 import java.nio.file.Files

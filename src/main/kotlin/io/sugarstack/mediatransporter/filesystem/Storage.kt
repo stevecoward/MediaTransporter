@@ -1,5 +1,6 @@
-package io.sugarstack.mediatransporter
+package io.sugarstack.mediatransporter.filesystem
 
+import io.sugarstack.mediatransporter.Config
 import mu.KotlinLogging
 import java.io.File
 import java.math.RoundingMode

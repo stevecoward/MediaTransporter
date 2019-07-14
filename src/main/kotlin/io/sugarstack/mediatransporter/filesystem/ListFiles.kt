@@ -1,5 +1,6 @@
-package io.sugarstack.mediatransporter
+package io.sugarstack.mediatransporter.filesystem
 
+import io.sugarstack.mediatransporter.Config
 import java.nio.file.FileVisitResult
 import java.nio.file.Path
 import java.nio.file.PathMatcher

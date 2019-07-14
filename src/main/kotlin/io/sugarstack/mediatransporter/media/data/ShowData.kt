@@ -1,5 +1,6 @@
-package io.sugarstack.mediatransporter
+package io.sugarstack.mediatransporter.media.data
 
+import io.sugarstack.mediatransporter.Utils
 import java.nio.file.Path
 
 data class ShowData(var title: String, val season: String, val episode: String, val path: Path) {

@@ -1,5 +1,7 @@
-package io.sugarstack.mediatransporter
+package io.sugarstack.mediatransporter.media
 
+import io.sugarstack.mediatransporter.Utils
+import io.sugarstack.mediatransporter.media.data.MovieData
 import mu.KotlinLogging
 
 private val logger = KotlinLogging.logger {}

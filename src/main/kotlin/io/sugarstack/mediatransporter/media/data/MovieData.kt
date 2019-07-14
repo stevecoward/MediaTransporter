@@ -1,5 +1,6 @@
-package io.sugarstack.mediatransporter
+package io.sugarstack.mediatransporter.media.data
 
+import io.sugarstack.mediatransporter.Utils
 import java.nio.file.Path
 
 data class MovieData(var title: String, val year: String, val resolution: String, val path: Path) {
