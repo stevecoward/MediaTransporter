@@ -3,23 +3,18 @@ package io.sugarstack.mediatransporter
 import com.natpryce.konfig.*
 import mu.KotlinLogging
 import java.io.File
-import java.nio.file.Paths
 import kotlin.system.exitProcess
 
 private val logger = KotlinLogging.logger {}
 
 object Config {
-    private var propertiesFile = "mediatransporter.properties"
-    private var propertiesData: ConfigurationProperties
+    private lateinit var propertiesData: ConfigurationProperties
     private val propertiesMapList: MutableList<MutableMap<String, Any>> = mutableListOf()
     var properties: MutableMap<String, Any> = mutableMapOf()
 
-    init {
-        val workingDirectory = Paths.get("").toAbsolutePath().toString()
-
+    operator fun invoke(propertiesFile: File): Config {
         try {
-            propertiesData =
-                ConfigurationProperties.fromFile(File(Paths.get(workingDirectory, propertiesFile).toString()))
+            propertiesData = ConfigurationProperties.fromFile(propertiesFile)
         } catch (e: Exception) {
             logger.error { "Properties file $propertiesFile was not found. Copy the sample, modify and rerun" }
             exitProcess(-1)
@@ -34,14 +29,14 @@ object Config {
         propertiesMapList.add(mutableMapOf("key" to "regexTvPattern", "type" to stringType))
 
         for (propertyMap in propertiesMapList) {
-            val propertyValue = propertiesData.get(
-                Key(
-                    propertyMap["key"] as String,
-                    propertyMap["type"] as (PropertyLocation, String) -> Any
-                )
-            )
+            val propertyValue = propertiesData[Key(
+                propertyMap["key"] as String,
+                propertyMap["type"] as (PropertyLocation, String) -> Any
+            )]
             properties.put(propertyMap["key"] as String, propertyValue)
         }
+
+        return this
     }
 }
 
