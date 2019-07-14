@@ -42,13 +42,17 @@ class MediaTransporter {
             }
 
             for (showData in shows) {
-                val show = Show(showData)
-                show.process()
+                if (!showData.path.toString().contains("sample")) {
+                    val show = Show(showData)
+                    show.process()
+                }
             }
 
             for (movieData in movies) {
-                val movie = Movie(movieData)
-                movie.process()
+                if (!movieData.path.toString().contains("sample")) {
+                    val movie = Movie(movieData)
+                    movie.process()
+                }
             }
         }
     }
