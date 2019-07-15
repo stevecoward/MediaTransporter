@@ -36,7 +36,7 @@ class Cli : CliktCommand() {
 
         storage.determineCapacity()
 
-        val foundFiles = Utils.findMediaFiles(storage.completedDownloadsPath, true)
+        val foundFiles = Utils.findMediaFiles(storage.completedDownloadsPath, true, null)
         for (file in foundFiles) {
 
             val showPattern = Pattern.compile(Config.properties["regexTvPattern"] as String)
@@ -72,10 +72,8 @@ class Cli : CliktCommand() {
         }
 
         for (movieData in movies) {
-            if (!movieData.path.toString().contains("sample")) {
-                val movie = Movie(movieData)
-                movie.process()
-            }
+            val movie = Movie(movieData)
+            movie.process()
         }
     }
 

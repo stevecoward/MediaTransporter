@@ -62,11 +62,18 @@ object Utils {
     fun findMediaFiles(
         mediaFilesPath: Path,
         includeArchiveExtension: Boolean = false,
-        regexFileNamePartial: String = ".+"
+        regexPartial: String?
     ): List<Path> {
-        var globFilesPattern = "^$regexFileNamePartial\\.(?:(?:mkv)|(?:avi)|(?:mp4)|(?:mov))\$"
-        if (includeArchiveExtension) globFilesPattern =
-            "$regexFileNamePartial\\.(?:(?:mkv)|(?:avi)|(?:mp4)|(?:mov)|(?:rar))\$"
+        val regexNamePartial = when (regexPartial.isNullOrBlank()) {
+            true -> ".+"
+            false -> regexPartial
+        }
+
+        val globFilesPattern = when (includeArchiveExtension) {
+            true -> "$regexNamePartial\\.(?:(?:mkv)|(?:avi)|(?:mp4)|(?:mov)|(?:rar))\$"
+            false -> "^$regexNamePartial\\.(?:(?:mkv)|(?:avi)|(?:mp4)|(?:mov))\$"
+        }
+
         val matcher = FileSystems
             .getDefault()
             .getPathMatcher("regex:$globFilesPattern")

@@ -2,15 +2,18 @@ package io.sugarstack.mediatransporter.media
 
 import com.github.junrar.Archive
 import io.sugarstack.mediatransporter.Config
+import io.sugarstack.mediatransporter.Utils
 import io.sugarstack.mediatransporter.media.data.MovieData
 import io.sugarstack.mediatransporter.media.data.ShowData
+import mu.KLogger
+import mu.KotlinLogging
 import java.io.File
 import java.io.FileOutputStream
 import java.nio.file.Files
 import java.nio.file.Path
 import java.nio.file.Paths
 
-
+private val logger = KotlinLogging.logger {}
 open class Media {
     constructor(mediaData: ShowData) {
         prepareDestination(mediaData)
@@ -18,18 +21,6 @@ open class Media {
 
     constructor(mediaData: MovieData) {
         prepareDestination(mediaData)
-    }
-
-    fun extract(file: File, path: Path) {
-        val archiveFile = Archive(file)
-        val archiveFileHeaders = archiveFile.fileHeaders
-
-        for (archiveFileHeader in archiveFileHeaders) {
-            val fileEntry = File(Paths.get(path.toString(), archiveFileHeader.fileNameString.trim()).toString())
-            val outputStream = FileOutputStream(fileEntry)
-            archiveFile.extractFile(archiveFileHeader, outputStream)
-            outputStream.close()
-        }
     }
 
     private fun prepareDestination(show: ShowData): Boolean {
@@ -65,5 +56,42 @@ open class Media {
         }
 
         return success
+    }
+
+    private fun extract(file: File, path: Path) {
+        val archiveFile = Archive(file)
+        val archiveFileHeaders = archiveFile.fileHeaders
+
+        for (archiveFileHeader in archiveFileHeaders) {
+            val fileEntry = File(Paths.get(path.toString(), archiveFileHeader.fileNameString.trim()).toString())
+            val outputStream = FileOutputStream(fileEntry)
+            archiveFile.extractFile(archiveFileHeader, outputStream)
+            outputStream.close()
+        }
+    }
+
+    private fun filesExist(path: Path, regexString: String?): Boolean =
+        Utils.findMediaFiles(path, false, regexString).count() > 0
+
+    private fun isSampleFile(filePath: Path): Boolean = filePath.toString().contains("sample", ignoreCase = true)
+    private fun isRarFile(filePath: Path): Boolean = filePath.toString().endsWith("rar", ignoreCase = true)
+
+    fun process(downloadsPath: Path, sharePath: Path, regexString: String?, mediaTypeLogger: KLogger) {
+        when (!isSampleFile(downloadsPath)) {
+            true -> when (filesExist(sharePath, regexString)) {
+                true -> mediaTypeLogger.info { "Found $this" } // TODO: If a rar and mkv exist in source, show is "found" twice
+                false -> {
+                    mediaTypeLogger.info { "Copying $this to destination" }
+                    val mediaFile = downloadsPath.toFile()
+                    when (!isRarFile(downloadsPath)) {
+                        true -> {
+                            mediaFile.copyTo(sharePath.resolve(downloadsPath.fileName).toFile())
+                            return
+                        }
+                        else -> extract(mediaFile, sharePath)
+                    }
+                }
+            }
+        }
     }
 }
