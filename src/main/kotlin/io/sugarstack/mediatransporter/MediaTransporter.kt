@@ -1,80 +1,73 @@
 package io.sugarstack.mediatransporter
 
 import com.github.ajalt.clikt.core.CliktCommand
-import com.github.ajalt.clikt.parameters.options.option
-import com.github.ajalt.clikt.parameters.options.required
-import com.github.ajalt.clikt.parameters.types.file
 import io.sugarstack.mediatransporter.filesystem.Storage
 import io.sugarstack.mediatransporter.media.Movie
 import io.sugarstack.mediatransporter.media.Show
 import io.sugarstack.mediatransporter.media.data.MovieData
 import io.sugarstack.mediatransporter.media.data.ShowData
 import java.io.File
+import java.nio.file.Path
 import java.util.regex.Pattern
 
 class MediaTransporter {
     companion object {
         @JvmStatic fun main(args: Array<String>) {
-            Cli().main(args)
+            MediaTransporterCli().main(args)
         }
     }
 }
 
-class Cli : CliktCommand() {
-    private val propertiesFile: File by option(
-        "-p",
-        "--properties",
-        help = "Absolute path to .properties file"
-    ).file().required()
+class MediaTransporterCli : CliktCommand() {
+    private val propertiesFileName: File = File("mediatransporter.properties")
+    private val shows: MutableList<ShowData> = ArrayList()
+    private val movies: MutableList<MovieData> = ArrayList()
+    private val showSeasonEpBasePattern = Pattern.compile("^.+([Ss]\\d{1,}[Ee]\\d{1,})\\..+\$")
 
-    override fun run() {
-        Config(propertiesFile)
-
-        val storage = Storage()
-        val shows: MutableList<ShowData> = ArrayList()
-        val movies: MutableList<MovieData> = ArrayList()
-
-        storage.determineCapacity()
-
-        val foundFiles = Utils.findMediaFiles(storage.completedDownloadsPath, true, null)
-        for (file in foundFiles) {
-
-            val showPattern = Pattern.compile(Config.properties["regexTvPattern"] as String)
-            val showsMatches = showPattern.matcher(file.fileName.toString())
-
-            val moviePattern = Pattern.compile(Config.properties["regexMoviePattern"] as String)
-            val moviesMatches = moviePattern.matcher(file.fileName.toString())
-
-            while (showsMatches.find()) {
-                val parsedShowDetails = ShowData(
-                    showsMatches.group("title"),
-                    showsMatches.group("season"),
-                    showsMatches.group("episode"),
-                    file.toAbsolutePath()
-                )
-                shows.add(parsedShowDetails)
-            }
-
-            while (moviesMatches.find()) {
-                val parsedMovieDetails = MovieData(
-                    moviesMatches.group("title"),
-                    moviesMatches.group("year"),
-                    moviesMatches.group("resolution"),
-                    file.toAbsolutePath()
-                )
-                movies.add(parsedMovieDetails)
-            }
-        }
-
-        for (showData in shows) {
-            val show = Show(showData)
-            show.process()
-        }
-
-        for (movieData in movies) {
-            val movie = Movie(movieData)
-            movie.process()
+    private fun matchAndAddMovie(file: Path, pattern: Pattern) {
+        val moviesMatches = pattern.matcher(file.fileName.toString())
+        while (moviesMatches.find()) {
+            val parsedMovieDetails = MovieData(
+                moviesMatches.group("title"),
+                moviesMatches.group("year"),
+                moviesMatches.group("resolution"),
+                file.toAbsolutePath()
+            )
+            movies.add(parsedMovieDetails)
         }
     }
 
+    private fun matchAndAddShow(file: Path, pattern: Pattern) {
+        val showsMatches = pattern.matcher(file.fileName.toString())
+        while (showsMatches.find()) {
+            val parsedShowDetails = ShowData(
+                showsMatches.group("title"),
+                showsMatches.group("season"),
+                showsMatches.group("episode"),
+                file.toAbsolutePath()
+            )
+            shows.add(parsedShowDetails)
+        }
+    }
+
+    override fun run() {
+        Config(propertiesFileName)
+
+        val storage = Storage()
+        storage.determineCapacity()
+
+        val downloadedFiles = Utils.findMediaFiles(storage.completedDownloadsPath, true, null)
+        val showsFilterList = downloadedFiles.filter { showSeasonEpBasePattern.matcher(it.fileName.toString()).find() }
+
+        val showPattern = Pattern.compile(Config.properties["regexTvPattern"] as String)
+        val moviePattern = Pattern.compile(Config.properties["regexMoviePattern"] as String)
+
+        for (file in downloadedFiles) when (file in showsFilterList) {
+            true -> matchAndAddShow(file, showPattern)
+            false -> matchAndAddMovie(file, moviePattern)
+        }
+
+        shows.map { Show(it).process() }
+        movies.map { Movie(it).process() }
+    }
 }

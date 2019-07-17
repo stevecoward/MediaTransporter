@@ -1,7 +1,6 @@
 package io.sugarstack.mediatransporter
 
 import io.sugarstack.mediatransporter.filesystem.ListFiles
-import mu.KotlinLogging
 import org.apache.commons.io.IOUtils
 import org.apache.commons.lang3.StringUtils
 import java.io.BufferedReader
@@ -13,7 +12,7 @@ import java.nio.file.Files
 import java.nio.file.Path
 import kotlin.text.Charsets.UTF_8
 
-private val logger = KotlinLogging.logger {}
+private val logger = TransportLogger()
 object Utils {
 
     private fun collectOutput(inputStream: InputStream): String {
@@ -48,7 +47,7 @@ object Utils {
             val errors = IOUtils.toString(process.errorStream, Charset.forName("utf-8"))
 
             if (process.waitFor() != 0) {
-                logger.error { "Failed to execute command ${pb.command()}.\nstderr: $errors\nstdout: $result" }
+                logger.error("Failed to execute command ${pb.command()}.\nstderr: $errors\nstdout: $result")
                 throw RuntimeException(errors)
             }
             return result
@@ -63,7 +62,7 @@ object Utils {
         mediaFilesPath: Path,
         includeArchiveExtension: Boolean = false,
         regexPartial: String?
-    ): List<Path> {
+    ): MutableList<Path> {
         val regexNamePartial = when (regexPartial.isNullOrBlank()) {
             true -> ".+"
             false -> regexPartial

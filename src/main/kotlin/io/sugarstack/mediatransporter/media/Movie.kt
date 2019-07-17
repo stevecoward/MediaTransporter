@@ -1,9 +1,9 @@
 package io.sugarstack.mediatransporter.media
 
+import io.sugarstack.mediatransporter.TransportLogger
 import io.sugarstack.mediatransporter.media.data.MovieData
-import mu.KotlinLogging
 
-private val logger = KotlinLogging.logger {}
+private val logger = TransportLogger()
 
 class Movie(private val data: MovieData) : Media(data) {
     private var moviePath = data.sharePath

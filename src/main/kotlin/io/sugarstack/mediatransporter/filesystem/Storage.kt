@@ -1,7 +1,7 @@
 package io.sugarstack.mediatransporter.filesystem
 
 import io.sugarstack.mediatransporter.Config
-import mu.KotlinLogging
+import io.sugarstack.mediatransporter.TransportLogger
 import java.io.File
 import java.math.RoundingMode
 import java.nio.file.Files
@@ -9,7 +9,7 @@ import java.nio.file.Path
 import java.nio.file.Paths
 import kotlin.system.exitProcess
 
-private val logger = KotlinLogging.logger {}
+private val logger = TransportLogger()
 class Storage {
 
     private lateinit var mediaShare: Path
@@ -49,13 +49,13 @@ class Storage {
     fun determineCapacity() {
         try {
             if (isCapacityReached()) {
-                logger.warn { "Capacity for storage volume: $mediaShare reached. Exiting." }
+                logger.warn("Capacity for storage volume: $mediaShare reached. Exiting.")
                 exitProcess(-1)
             } else {
-                logger.info { "Capacity looks good, continuing" }
+                logger.info("Capacity looks good, continuing")
             }
         } catch (e: Exception) {
-            logger.error { "Could not locate the share defined in config!" }
+            logger.error("Could not locate the share defined in config!")
             exitProcess(-1)
         }
     }

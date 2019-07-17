@@ -1,9 +1,9 @@
 package io.sugarstack.mediatransporter.media
 
+import io.sugarstack.mediatransporter.TransportLogger
 import io.sugarstack.mediatransporter.media.data.ShowData
-import mu.KotlinLogging
 
-private val logger = KotlinLogging.logger {}
+private val logger = TransportLogger()
 
 class Show(private val data: ShowData) : Media(data) {
     private var showSeasonPath = data.sharePath

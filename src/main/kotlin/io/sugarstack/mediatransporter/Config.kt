@@ -1,11 +1,10 @@
 package io.sugarstack.mediatransporter
 
 import com.natpryce.konfig.*
-import mu.KotlinLogging
 import java.io.File
 import kotlin.system.exitProcess
 
-private val logger = KotlinLogging.logger {}
+private val logger = TransportLogger()
 
 object Config {
     private lateinit var propertiesData: ConfigurationProperties
@@ -16,7 +15,7 @@ object Config {
         try {
             propertiesData = ConfigurationProperties.fromFile(propertiesFile)
         } catch (e: Exception) {
-            logger.error { "Properties file $propertiesFile was not found. Copy the sample, modify and rerun" }
+            logger.error("Properties file $propertiesFile was not found. Copy the sample, modify and rerun")
             exitProcess(-1)
         }
 
@@ -33,7 +32,7 @@ object Config {
                 propertyMap["key"] as String,
                 propertyMap["type"] as (PropertyLocation, String) -> Any
             )]
-            properties.put(propertyMap["key"] as String, propertyValue)
+            properties[propertyMap["key"] as String] = propertyValue
         }
 
         return this
