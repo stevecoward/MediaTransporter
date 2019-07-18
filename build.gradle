@@ -6,7 +6,7 @@ plugins {
 apply plugin: "java"
 apply plugin: "kotlin"
 
-version '0.1-SNAPSHOT'
+version '0.6.0-SNAPSHOT'
 
 repositories {
     mavenCentral()
@@ -14,20 +14,31 @@ repositories {
 
 dependencies {
     implementation "org.jetbrains.kotlin:kotlin-stdlib-jdk8"
+    implementation "com.github.ajalt:clikt:2.1.0"
     testCompile "org.mockito:mockito-core:2.+"
     compile "org.apache.commons:commons-lang3:3.7"
     compile "commons-io:commons-io:2.6"
+    compile "io.github.microutils:kotlin-logging:1.6.26"
+    compile "com.github.junrar:junrar:0.7"
+    compile "org.slf4j:slf4j-api:1.7.25"
+    compile "ch.qos.logback:logback-classic:1.2.3"
+    compile "ch.qos.logback:logback-core:1.2.3"
+    compile "com.natpryce:konfig:1.6.10.0"
 }
 
 compileKotlin {
+    //noinspection GrUnresolvedAccess
     kotlinOptions.jvmTarget = "1.8"
 }
 compileTestKotlin {
+    //noinspection GrUnresolvedAccess
     kotlinOptions.jvmTarget = "1.8"
 }
 
 tasks.getByName("shadowJar") {
+    //noinspection GrUnresolvedAccess
     manifest {
+        //noinspection GrUnresolvedAccess
         attributes 'Main-Class': 'io.sugarstack.mediatransporter.MediaTransporter'
     }
 }
