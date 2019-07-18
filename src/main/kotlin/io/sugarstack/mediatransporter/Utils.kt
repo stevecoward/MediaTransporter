@@ -13,8 +13,15 @@ import java.nio.file.Path
 import kotlin.text.Charsets.UTF_8
 
 private val logger = TransportLogger()
+
+/**
+ * Contains a collection of methods used by the program to perform various functions.
+ */
 object Utils {
 
+    /**
+     * Holds data from [inputStream] and returns a String of the output.
+     */
     private fun collectOutput(inputStream: InputStream): String {
         val out = StringBuilder()
         val buf: BufferedReader = inputStream.bufferedReader(UTF_8)
@@ -28,10 +35,16 @@ object Utils {
         return out.toString()
     }
 
+    /**
+     * Passes [command] to execLocal() with default values and returns the results of a command.
+     */
     fun execLocal(command: String): String {
         return execLocal(command, hashMapOf())
     }
 
+    /**
+     * Performs a system [command] using 'sh'. Generally unsafe and not in use, so will be removed.
+     */
     private fun execLocal(command: String, env: HashMap<String, String>): String {
         try {
             val commands = ArrayList<String>()
@@ -58,6 +71,11 @@ object Utils {
         }
     }
 
+    /**
+     * Locates files from [mediaFilesPath] optionally including rar archives in the search with [includeArchiveExtension]
+     * matching [regexPartial] passed from MediaTransporter's entry point. Will return a MutableList<Paths> object of
+     * matches.
+     */
     fun findMediaFiles(
         mediaFilesPath: Path,
         includeArchiveExtension: Boolean = false,
@@ -83,6 +101,9 @@ object Utils {
         return listFiles.getFoundFiles()
     }
 
+    /**
+     * Converts a release [title] into a better formatted string and returns the formatted String.
+     */
     fun toTitleCase(title: String): String {
         val finalTitleWords: MutableList<String> = ArrayList()
         val words = title.split(" ")

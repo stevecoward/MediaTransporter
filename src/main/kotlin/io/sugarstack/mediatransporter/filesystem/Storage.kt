@@ -10,11 +10,18 @@ import java.nio.file.Paths
 import kotlin.system.exitProcess
 
 private val logger = TransportLogger()
+
+/**
+ * Holds functionality that performs various filesystem functions.
+ */
 class Storage {
 
     private lateinit var mediaShare: Path
     lateinit var completedDownloadsPath: Path
 
+    /**
+     * Enumerates available mounts and validate that they exist.
+     */
     init {
         val mediaShares = Config.properties["mediaShareMount"] as String
         val mediaSharesList: List<String> = mediaShares.split(",")
@@ -33,6 +40,10 @@ class Storage {
 
     }
 
+    /**
+     * Gathers disk capacity of 'mediaShare' and returns true or false if the disk capacity
+     * exceeds user-set property Config.properties["percentageSafeCapacity"].
+     */
     private fun isCapacityReached(): Boolean {
         val volume = File(mediaShare.toString())
         val totalBytes = volume.totalSpace
@@ -46,6 +57,9 @@ class Storage {
         return false
     }
 
+    /**
+     * Handles informing the user whether the mount disk capacity is good or not.
+     */
     fun determineCapacity() {
         try {
             if (isCapacityReached()) {
