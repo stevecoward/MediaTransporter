@@ -6,7 +6,6 @@ import io.sugarstack.mediatransporter.TransportLogger
 import io.sugarstack.mediatransporter.Utils
 import io.sugarstack.mediatransporter.media.data.MovieData
 import io.sugarstack.mediatransporter.media.data.ShowData
-import mu.KotlinLogging
 import java.io.File
 import java.io.FileOutputStream
 import java.io.OutputStream
@@ -23,7 +22,6 @@ open class Media {
      */
     constructor(mediaData: ShowData) {
         prepareDestination(mediaData)
-        KotlinLogging
     }
 
     /**

@@ -6,13 +6,19 @@ import kotlin.system.exitProcess
 
 private val logger = TransportLogger()
 
+interface ConfigInterface {
+    var propertiesData: ConfigurationProperties
+    var propertiesMapList: MutableList<MutableMap<String, Any>>
+    var properties: MutableMap<String, Any>
+}
+
 /**
  * An object that holds user configuration properties.
  */
-object Config {
-    private lateinit var propertiesData: ConfigurationProperties
-    private val propertiesMapList: MutableList<MutableMap<String, Any>> = mutableListOf()
-    var properties: MutableMap<String, Any> = mutableMapOf()
+object Config : ConfigInterface {
+    override lateinit var propertiesData: ConfigurationProperties
+    override var propertiesMapList: MutableList<MutableMap<String, Any>> = mutableListOf()
+    override var properties: MutableMap<String, Any> = mutableMapOf()
 
     /**
      * Reads a properties file [propertiesFile] and adds the values to a ConfigurationProperties object.

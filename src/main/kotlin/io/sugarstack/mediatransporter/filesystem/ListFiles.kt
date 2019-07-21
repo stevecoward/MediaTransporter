@@ -14,6 +14,7 @@ import java.nio.file.attribute.BasicFileAttributes
  */
 class ListFiles(private val pathMatcher: PathMatcher) : SimpleFileVisitor<Path>() {
     private var foundFiles: MutableList<Path> = ArrayList()
+    private val config = Config
 
     /**
      * Overrides visitFile() method that attempts to find [file] optionally containing [attrs].
@@ -25,7 +26,7 @@ class ListFiles(private val pathMatcher: PathMatcher) : SimpleFileVisitor<Path>(
 
     /**
      * Overrides the SimpleFileVisitor<Path> class method that is used recursively to
-     * find media files in a [dir] path. BasicFileAttributes object [attrs] is not used
+     * find media-downloads files in a [dir] path. BasicFileAttributes object [attrs] is not used
      * in this implementation.
      */
     override fun preVisitDirectory(dir: Path, attrs: BasicFileAttributes?): FileVisitResult {
